@@ -1,0 +1,8 @@
+% Header includes for the PDF build. %%FOOTER_VERSION%% is filled in by
+% tools/build-books.sh. Ported from meta.tmpl.tex in Learn Go with Tests (MIT),
+% without the CJK font setup, which this book does not need.
+\usepackage{fancyhdr}
+\sloppy
+\pagestyle{fancy}
+\fancyhf{}
+\cfoot{%%FOOTER_VERSION%%}

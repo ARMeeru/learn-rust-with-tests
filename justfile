@@ -35,3 +35,7 @@ serve:
     mdbook serve --open
 
 check: fmt lint test doctest deny typos prose book
+
+# EPUB and PDF via pandoc in a container. Needs docker or podman.
+books:
+    tools/build-books.sh
