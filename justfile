@@ -22,8 +22,9 @@ deny:
 typos:
     typos
 
+# Book prose plus the root pages the book includes or links to.
 prose:
-    tools/prose-check
+    tools/prose-check book/src README.md CONTRIBUTING.md STYLE.md
 
 book:
     mdbook build
@@ -34,6 +35,7 @@ links: book
 serve:
     mdbook serve --open
 
+# Everything CI runs except the link check, which needs the network.
 check: fmt lint test doctest deny typos prose book
 
 # EPUB and PDF via pandoc in a container. Needs docker or podman.

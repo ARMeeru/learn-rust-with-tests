@@ -2,8 +2,9 @@
 """Fail on em dashes, en dashes and curly quotes in book prose.
 
 Fenced code blocks and inline code are stripped before scanning, so quoted
-compiler output and code samples are never checked. Only book/src/*.md is
-scanned. Exit 1 with one line per offending location.
+compiler output and code samples are never checked. Arguments are files or
+directories (directories are searched for *.md); the default is book/src.
+Exit 1 with one line per offending location.
 """
 
 import re
@@ -35,9 +36,18 @@ def prose_lines(text):
         yield number, INLINE_CODE.sub("", line)
 
 
-def main(root):
+def markdown_files(targets):
+    for target in targets:
+        path = Path(target)
+        if path.is_dir():
+            yield from sorted(path.rglob("*.md"))
+        else:
+            yield path
+
+
+def main(targets):
     failures = 0
-    for path in sorted(Path(root).rglob("*.md")):
+    for path in markdown_files(targets):
         for number, line in prose_lines(path.read_text(encoding="utf-8")):
             for char, name in BANNED.items():
                 if char in line:
@@ -48,5 +58,4 @@ def main(root):
 
 
 if __name__ == "__main__":
-    target = sys.argv[1] if len(sys.argv) > 1 else "book/src"
-    sys.exit(main(target))
+    sys.exit(main(sys.argv[1:] or ["book/src"]))

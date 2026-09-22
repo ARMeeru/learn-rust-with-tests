@@ -27,7 +27,7 @@ jobs:
 
       - uses: taiki-e/install-action@v2
         with:
-          tool: cargo-nextest,cargo-deny,just
+          tool: cargo-nextest@0.9.146,cargo-deny@0.20.2,just@1.58.0
 
       - run: just fmt
       - run: just lint
