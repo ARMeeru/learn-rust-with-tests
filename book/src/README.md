@@ -11,6 +11,11 @@ affiliated with or endorsed by the original author.
 The book is a work in progress. Chapters appear in the sidebar as they are written; greyed-out
 entries are planned but not yet done.
 
+It is published in two places from the same source: on
+[GitHub Pages](https://armeeru.github.io/learn-rust-with-tests/), which shows the full table of
+contents including unwritten chapters, and on
+[GitBook](https://armeeru.gitbook.io/learn-rust-with-tests/), which shows only finished chapters.
+
 ## Why tests
 
 Rust's compiler catches a great deal, and this book leans on that. Many steps begin with a compiler

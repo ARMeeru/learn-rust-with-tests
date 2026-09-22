@@ -1,8 +1,12 @@
-// ANCHOR: hello
-pub fn hello() -> &'static str {
+// ANCHOR: code
+fn hello() -> &'static str {
     "Hello, world"
 }
-// ANCHOR_END: hello
+
+fn main() {
+    println!("{}", hello());
+}
+// ANCHOR_END: code
 
 // ANCHOR: test
 #[cfg(test)]
@@ -10,7 +14,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn says_hello_world() {
+    fn hello_world() {
         let got = hello();
         let want = "Hello, world";
         assert_eq!(got, want);

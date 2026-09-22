@@ -25,9 +25,12 @@ the same way as the rest of the book.
 
 ## Rules that are easy to miss
 
-**Every committed crate compiles.** A red step where the test calls something that does not exist
-yet cannot live in a workspace CI builds. Stub it with `todo!()` so the test fails at runtime, and
-tell the compile-error moment in prose.
+**Every committed crate compiles, and every committed test passes.** A red step where the test
+calls something that does not exist yet cannot live in a workspace CI builds, so the
+compile-error moment is told in prose, with the error quoted from the pinned toolchain. A red
+step whose code compiles but fails its test keeps the real assertion behind
+`#[should_panic(expected = "...")]`, so CI stays green while the crate stays honestly broken, and
+the prose quotes the failure the reader will see. Say so in the prose at that point.
 
 **When the compiler error is the lesson, CI verifies it.** Put the failing code in a trybuild
 fixture under `tests/compile-fail/` in the crate version that follows it. The quoted error in the

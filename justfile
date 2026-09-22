@@ -12,9 +12,10 @@ lint:
 test:
     cargo nextest run --workspace
 
-# nextest cannot run doctests on stable, so they get their own step.
+# nextest cannot run doctests on stable, so they get their own step. The script
+# selects library crates, because cargo errors when the workspace has none.
 doctest:
-    cargo test --doc --workspace
+    tools/doctest
 
 deny:
     cargo deny check

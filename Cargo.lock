@@ -5,3 +5,35 @@ version = 4
 [[package]]
 name = "ch02-hello-world-v1"
 version = "0.1.0"
+
+[[package]]
+name = "ch02-hello-world-v2"
+version = "0.1.0"
+
+[[package]]
+name = "ch02-hello-world-v3"
+version = "0.1.0"
+
+[[package]]
+name = "ch02-hello-world-v4"
+version = "0.1.0"
+
+[[package]]
+name = "ch02-hello-world-v5"
+version = "0.1.0"
+
+[[package]]
+name = "ch02-hello-world-v6"
+version = "0.1.0"
+
+[[package]]
+name = "ch02-hello-world-v7"
+version = "0.1.0"
+
+[[package]]
+name = "ch02-hello-world-v8"
+version = "0.1.0"
+
+[[package]]
+name = "ch02-hello-world-v9"
+version = "0.1.0"
