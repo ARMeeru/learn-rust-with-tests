@@ -18,6 +18,7 @@ from pathlib import Path
 
 DRAFT = re.compile(r"^\s*[-*]\s*\[[^\]]*\]\(\)\s*$")
 PART = re.compile(r"^# (?!Summary\s*$)(.+)$")
+README_LINE = re.compile(r"^\s*\[[^\]]+\]\(README\.md\)\s*$")
 
 
 def rewrite_summary(text):
@@ -34,6 +35,10 @@ def rewrite_summary(text):
         if line.strip().startswith(("-", "*")) and pending_part:
             out.extend(["", pending_part, ""])
             pending_part = None
+        # GitBook only recognises the readme when it is a list item, so the
+        # bare "[Title](README.md)" line mdBook uses becomes a bullet.
+        if README_LINE.match(line):
+            line = "* " + line.strip()
         if line.strip() or (out and out[-1].strip()):
             out.append(line)
     return "\n".join(out).rstrip() + "\n"
