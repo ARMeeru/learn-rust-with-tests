@@ -1,8 +1,9 @@
-# GitBook reads the generated `gitbook` branch, not `main`. That branch holds
+# GitBook imports the generated `gitbook` branch, not `main`. That branch holds
 # the Markdown that mdBook's markdown renderer writes out, with every include
-# already expanded, so the layout below matches that output.
+# already expanded and the landing page renamed to README.md, so the layout
+# below matches that output.
 root: ./
 
 structure:
-  readme: index.md
+  readme: README.md
   summary: SUMMARY.md

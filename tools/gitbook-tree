@@ -5,8 +5,10 @@ usage: tools/gitbook-tree <mdbook-markdown-dir> <SUMMARY.md> <out-dir>
 
 mdBook's markdown renderer resolves every include but writes the landing page
 as index.md, emits no SUMMARY.md, and skips draft chapters. This script copies
-the expanded pages, rewrites SUMMARY.md for GitBook (drafts removed, part
-headings as level two, README.md pointed at index.md), and adds .gitbook.yaml.
+the expanded pages, renames index.md back to README.md (GitBook's readme
+convention; any other name makes it a page titled after the file), rewrites
+SUMMARY.md for GitBook (drafts removed, part headings as level two), and adds
+.gitbook.yaml.
 """
 
 import re
@@ -33,7 +35,7 @@ def rewrite_summary(text):
             out.extend(["", pending_part, ""])
             pending_part = None
         if line.strip() or (out and out[-1].strip()):
-            out.append(line.replace("(README.md)", "(index.md)"))
+            out.append(line)
     return "\n".join(out).rstrip() + "\n"
 
 
@@ -42,6 +44,7 @@ def main(markdown_dir, summary, out_dir):
     if out.exists():
         shutil.rmtree(out)
     shutil.copytree(src, out)
+    (out / "index.md").rename(out / "README.md")
     (out / "SUMMARY.md").write_text(rewrite_summary(Path(summary).read_text()))
     gitbook_yaml = Path(".gitbook.yaml")
     if gitbook_yaml.exists():
