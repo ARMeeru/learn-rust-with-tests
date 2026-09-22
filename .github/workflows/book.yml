@@ -89,3 +89,29 @@ jobs:
           git add -A
           git commit -q -m "book: generated from ${GITHUB_SHA}"
           git push --force "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" gitbook
+
+      # GitBook has no GitHub app installed for this repo. Instead the space is
+      # told to pull the branch through the GitBook API, one way, after every
+      # push. Skipped when the secrets are not configured, so forks still build.
+      - name: Ask GitBook to import the branch
+        if: env.GITBOOK_TOKEN != '' && env.GITBOOK_SPACE_ID != ''
+        env:
+          GITBOOK_TOKEN: ${{ secrets.GITBOOK_TOKEN }}
+          GITBOOK_SPACE_ID: ${{ secrets.GITBOOK_SPACE_ID }}
+        run: |
+          set -euo pipefail
+          curl --fail --silent --show-error \
+            -X POST "https://api.gitbook.com/v1/spaces/${GITBOOK_SPACE_ID}/git/import" \
+            -H "Authorization: Bearer ${GITBOOK_TOKEN}" \
+            -H "Content-Type: application/json" \
+            --data @- <<JSON
+          {
+            "url": "https://github.com/${GITHUB_REPOSITORY}.git",
+            "ref": "refs/heads/gitbook",
+            "repoTreeURL": "https://github.com/${GITHUB_REPOSITORY}/blob/gitbook/",
+            "repoCommitURL": "https://github.com/${GITHUB_REPOSITORY}/commit/",
+            "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+            "force": true
+          }
+          JSON
+          echo "import requested"
