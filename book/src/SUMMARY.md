@@ -4,8 +4,8 @@
 
 # Rust fundamentals
 
-- [Install Rust]()
-- [Hello, World]()
+- [Install Rust](install-rust.md)
+- [Hello, World](hello-world.md)
 - [Integers]()
 - [Iteration]()
 - [Arrays, Vec and slices]()

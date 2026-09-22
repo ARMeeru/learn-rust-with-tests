@@ -8,7 +8,9 @@ by the original author.
 Work in progress. Chapters are published as they are written. The table of contents shows what is
 done and what is still a stub.
 
-Read it at https://armeeru.github.io/learn-rust-with-tests/
+Read it at https://armeeru.github.io/learn-rust-with-tests/ or, if you prefer GitBook,
+https://armeeru.gitbook.io/learn-rust-with-tests/. Both are built from this repository on every
+push to `main`.
 
 ## Who this is for
 

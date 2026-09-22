@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+# Run doc tests for every workspace crate that has a library target.
+# nextest cannot run doctests, and `cargo test --doc --workspace` exits with an
+# error when no crate in the workspace has a library target, which is the case
+# while the early chapters are all binaries. So the crates are selected first.
+set -euo pipefail
+
+mapfile -t libs < <(
+  cargo metadata --format-version 1 --no-deps \
+    | python3 -c 'import json,sys
+d=json.load(sys.stdin)
+for p in d["packages"]:
+    if any("lib" in t["kind"] or "rlib" in t["kind"] for t in p["targets"]):
+        print(p["name"])'
+)
+
+if [ "${#libs[@]}" -eq 0 ]; then
+  echo "doctest: no library crates in the workspace yet, nothing to run"
+  exit 0
+fi
+
+args=()
+for lib in "${libs[@]}"; do args+=(-p "$lib"); done
+cargo test --doc "${args[@]}"
