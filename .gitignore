@@ -1,6 +1,7 @@
 # Planning documents, kept local
 /PLAN.md
 /DEVELOPMENT_PLAN.md
+/reviews/
 
 # Cargo
 /target/
@@ -20,3 +21,6 @@ Cargo.lock.orig
 *.swp
 .DS_Store
 .lycheecache
+
+# Build outputs
+/dist/

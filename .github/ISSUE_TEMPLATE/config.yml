@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: The Go original
+    url: https://quii.gitbook.io/learn-go-with-tests
+    about: This book is a port. Problems with the Go book belong upstream.

@@ -1,0 +1,33 @@
+name: Chapter
+description: Tracks one chapter of the book from unwritten to merged.
+title: "Chapter NN: <title>"
+labels: [chapter]
+body:
+  - type: input
+    id: go-source
+    attributes:
+      label: Go chapter
+      description: Link to the Go original this chapter ports.
+      placeholder: https://github.com/quii/learn-go-with-tests/blob/main/hello-world.md
+    validations:
+      required: true
+  - type: dropdown
+    id: phase
+    attributes:
+      label: Phase
+      options: ["0", "1", "2", "3", "4", "5"]
+    validations:
+      required: true
+  - type: textarea
+    id: mapping
+    attributes:
+      label: What changes from the Go chapter
+      description: One paragraph. If the subject changes because Rust has no equivalent, say so here.
+  - type: textarea
+    id: steps
+    attributes:
+      label: Planned steps
+      description: One line per step crate, v1 to vN.
+      placeholder: |
+        v1: ...
+        v2: ...

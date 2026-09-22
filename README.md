@@ -30,7 +30,7 @@ from those crates, so what you read is what compiles. Each chapter has one crate
 `chapters/`, so you can open the exact state the prose describes:
 
 ```
-cd chapters/02-hello-world/v3
+cd chapters/02-hello-world/v1
 cargo test
 ```
 

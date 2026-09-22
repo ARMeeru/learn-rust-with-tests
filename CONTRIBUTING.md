@@ -65,7 +65,8 @@ The toolchain is pinned in `rust-toolchain.toml` and rustup picks it up. The che
 Then:
 
 ```
-just check    # everything CI runs
+just check    # everything CI runs except the link check
+just links    # the link check, needs the network
 just test     # nextest across the workspace
 just doctest  # doc tests, which nextest cannot run
 just lint     # clippy with warnings denied

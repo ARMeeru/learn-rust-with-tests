@@ -1,0 +1,58 @@
+#!/usr/bin/env python3
+"""Assemble the tree GitBook syncs from, out of mdBook's expanded Markdown.
+
+usage: tools/gitbook-tree <mdbook-markdown-dir> <SUMMARY.md> <out-dir>
+
+mdBook's markdown renderer resolves every include but writes the landing page
+as index.md, emits no SUMMARY.md, and skips draft chapters. This script copies
+the expanded pages, rewrites SUMMARY.md for GitBook (drafts removed, part
+headings as level two, README.md pointed at index.md), and adds .gitbook.yaml.
+"""
+
+import re
+import shutil
+import sys
+from pathlib import Path
+
+DRAFT = re.compile(r"^\s*[-*]\s*\[[^\]]*\]\(\)\s*$")
+PART = re.compile(r"^# (?!Summary\s*$)(.+)$")
+
+
+def rewrite_summary(text):
+    """Drop drafts, turn part titles into level-two headings, skip parts left empty."""
+    out = []
+    pending_part = None
+    for line in text.splitlines():
+        if DRAFT.match(line):
+            continue
+        part = PART.match(line)
+        if part:
+            pending_part = f"## {part.group(1)}"
+            continue
+        if line.strip().startswith(("-", "*")) and pending_part:
+            out.extend(["", pending_part, ""])
+            pending_part = None
+        if line.strip() or (out and out[-1].strip()):
+            out.append(line.replace("(README.md)", "(index.md)"))
+    return "\n".join(out).rstrip() + "\n"
+
+
+def main(markdown_dir, summary, out_dir):
+    src, out = Path(markdown_dir), Path(out_dir)
+    if out.exists():
+        shutil.rmtree(out)
+    shutil.copytree(src, out)
+    (out / "SUMMARY.md").write_text(rewrite_summary(Path(summary).read_text()))
+    gitbook_yaml = Path(".gitbook.yaml")
+    if gitbook_yaml.exists():
+        shutil.copy(gitbook_yaml, out / ".gitbook.yaml")
+    pages = sorted(p.name for p in out.glob("*.md"))
+    print(f"gitbook tree: {len(pages)} pages in {out}")
+    return 0
+
+
+if __name__ == "__main__":
+    if len(sys.argv) != 4:
+        print(__doc__, file=sys.stderr)
+        sys.exit(2)
+    sys.exit(main(*sys.argv[1:]))

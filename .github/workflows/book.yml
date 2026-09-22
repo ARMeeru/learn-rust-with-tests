@@ -1,0 +1,84 @@
+name: book
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: book-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: build and check the book
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: mdbook@0.5.4,typos@1.50.2,lychee@0.24.2,just@1.58.0
+
+      - run: just typos
+      - run: just prose
+      - run: just book
+      - run: just links
+
+      - name: Assemble the GitBook tree
+        run: tools/gitbook-tree book/book/markdown book/src/SUMMARY.md dist/gitbook
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: book/book/html
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: gitbook
+          path: dist/gitbook
+
+  deploy:
+    name: deploy to GitHub Pages
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
+
+  gitbook:
+    name: publish the gitbook branch
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: gitbook
+          path: dist/gitbook
+
+      # The branch is generated output. It is replaced wholesale on every
+      # push to main and is never edited by hand, so force-push is intended.
+      - name: Force-push the generated tree
+        working-directory: dist/gitbook
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          git init -q -b gitbook
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -q -m "book: generated from ${GITHUB_SHA}"
+          git push --force "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" gitbook
