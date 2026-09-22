@@ -1,8 +1,9 @@
 # Chapter template
 
-Every tutorial chapter in this book follows the shape below, copied from the Go book. The
-headings are fixed so a reader always knows where they are in the loop. Copy this file to start a
-new chapter and replace the notes under each heading.
+Every tutorial chapter from chapter 3 onward follows the shape below, copied from the Go book.
+The headings are fixed so a reader always knows where they are in the loop. Chapter 2 is the one
+exception: it teaches the loop under its own headings before the book names it, as the Go book's
+Hello World does. Copy this file to start a new chapter and replace the notes under each heading.
 
 A short introduction. What we are going to build, and which Rust idea it will teach. If the
 chapter changes subject from its Go counterpart, say so here, in the first paragraph.

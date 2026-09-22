@@ -3,7 +3,6 @@ const ENGLISH_HELLO_PREFIX: &str = "Hello, ";
 const SPANISH_HELLO_PREFIX: &str = "Hola, ";
 const FRENCH_HELLO_PREFIX: &str = "Bonjour, ";
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum Language {
     English,
     Spanish,

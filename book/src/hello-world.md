@@ -1,6 +1,6 @@
 # Hello, World
 
-**[You can find all the code for this chapter here](https://github.com/ARMeeru/learn-rust-with-tests/tree/main/chapters/02-hello-world)**
+[You can find all the code for this chapter here](https://github.com/ARMeeru/learn-rust-with-tests/tree/main/chapters/02-hello-world).
 
 It is traditional for your first program in a new language to be
 [Hello, World](https://en.m.wikipedia.org/wiki/%22Hello,_World!%22_program).
@@ -146,7 +146,8 @@ help: remove the extra argument
 Rust's compiler messages are long, and the habit to build is to read the first line and the
 underlined code, then only go further if those two did not explain it. Here the first line says
 it all: we called `hello` with one argument, and it takes none. The compiler even offers a fix,
-though it is the wrong one for us, because the test is right and the function is behind.
+though it is the wrong one for us, because the test is right and the function is behind. The
+line numbers in these quotes are from my file and will not match yours; ignore them.
 
 When you use a statically typed language it is important to listen to the compiler. It
 understands how your code should snap together so you do not have to. In this case it is
@@ -186,7 +187,9 @@ assertion `left == right` failed
 
 This is `assert_eq!` doing its job: both values, labelled, with the line number. We finally have
 a compiling program that does not meet its requirement, which is exactly the state we want to be
-in before we write the real code.
+in before we write the real code. In the repository, this step's test is marked `should_panic`
+so that the checks stay green while the code stays honestly broken; the output above is what
+your own test prints.
 
 Make it pass by using the name:
 
@@ -290,8 +293,7 @@ Let us go over the cycle again.
 
 This may seem tedious, but sticking to the feedback loop is important.
 
-Not only does it ensure you have relevant tests, it helps you design good software by refactoring
-with the safety of tests.
+Relevant tests, and the chance to refactor under their protection, are the point.
 
 Seeing the test fail matters because it shows you the failure message. As a developer it is very
 hard to work in a codebase where a failing test does not tell you what is wrong. Rust's compiler
@@ -395,9 +397,9 @@ changing one call to use a value that does not exist yet:
 
 ```text
 error[E0433]: cannot find type `Language` in this scope
-  --> src/main.rs:18:35
+  --> src/main.rs:44:35
    |
-18 |         let got = hello("Elodie", Language::Spanish);
+44 |         let got = hello("Elodie", Language::Spanish);
    |                                   ^^^^^^^^ use of undeclared type `Language`
 ```
 
@@ -419,10 +421,6 @@ A few new concepts:
 - The `match` no longer has a `_` arm. Because the compiler knows all three variants, it can
   check that we handled every one. Add a fourth variant later and the `match` will refuse to
   compile until you add its arm, which is exactly the help you want when the list grows.
-- `#[derive(Debug, Clone, Copy, PartialEq, Eq)]` asks the compiler to write some standard
-  behaviour for us: printing the value for debugging, copying it freely, and comparing it with
-  `==`. You will see this line on most small enums. What each of those names means is a topic for
-  later; for now, copy the line.
 - `greeting_prefix` is a separate function, and it is private. In Rust everything is private
   unless you write `pub` in front of it, so hiding the internals of the algorithm took no effort.
   It returns `&'static str` because every prefix is a literal.
