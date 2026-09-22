@@ -1,0 +1,104 @@
+#!/usr/bin/env python3
+"""Create or list the one-issue-per-chapter tracking issues.
+
+usage: tools/create-chapter-issues [--dry-run]
+
+Titles come from book/src/SUMMARY.md, in order, as "Chapter NN: <title>". The
+Go source link for each chapter comes from the Go book's SUMMARY.md on GitHub.
+The "what changes" note comes from PLAN.md section 5 when that file is present
+(it is a local planning document, not committed); otherwise the section says
+so. Issues whose title already exists are skipped, so the script can be rerun.
+Labels `chapter` and `phase-N` must exist. Needs `gh` authenticated.
+"""
+
+import json
+import re
+import subprocess
+import sys
+import time
+import urllib.request
+from pathlib import Path
+
+GO_SUMMARY = "https://raw.githubusercontent.com/quii/learn-go-with-tests/main/SUMMARY.md"
+GO_BLOB = "https://github.com/quii/learn-go-with-tests/blob/main/"
+
+
+def phase(n):
+    return 0 if n <= 2 else 1 if n <= 14 else 2 if n <= 21 else 3 if n <= 25 else 4 if n <= 33 else 5
+
+
+def rust_titles():
+    text = Path("book/src/SUMMARY.md").read_text()
+    return re.findall(r"^- \[([^\]]+)\]", text, re.M)
+
+
+def go_files():
+    with urllib.request.urlopen(GO_SUMMARY, timeout=20) as r:
+        text = r.read().decode()
+    return re.findall(r"^\* \[[^\]]+\]\(([^)]+)\)", text, re.M)[1:]  # drop the landing page
+
+
+def mapping_notes():
+    plan = Path("PLAN.md")
+    if not plan.exists():
+        return {}
+    text = plan.read_text()
+    section = text[text.index("### 5.1"):text.index("## 6.")]
+    notes = {}
+    for num, rest in re.findall(r"^\| (\d+) \|(.*)\|\s*$", section, re.M):
+        notes[int(num)] = rest.split("|")[-1].strip()
+    return notes
+
+
+def body(n, gofile, note):
+    return f"""### Go chapter
+
+{GO_BLOB}{gofile}
+
+### Phase
+
+{phase(n)}
+
+### What changes from the Go chapter
+
+{note or "See the development plan entry for this chapter."}
+
+### Planned steps
+
+Filled in when the chapter is picked up. See the development plan entry for chapter {n}.
+"""
+
+
+def existing_titles():
+    out = subprocess.run(
+        ["gh", "issue", "list", "--label", "chapter", "--state", "all", "--limit", "200",
+         "--json", "title", "--jq", ".[].title"],
+        capture_output=True, text=True, check=True,
+    ).stdout
+    return set(filter(None, out.split("\n")))
+
+
+def main(dry_run):
+    titles, files, notes = rust_titles(), go_files(), mapping_notes()
+    if len(titles) != len(files):
+        sys.exit(f"summary has {len(titles)} chapters, Go book has {len(files)}; fix the mapping first")
+    have = existing_titles()
+    created = 0
+    for n, (title, gofile) in enumerate(zip(titles, files), start=1):
+        full = f"Chapter {n:02d}: {title}"
+        state = "exists" if full in have else "would create" if dry_run else "create"
+        print(f"{state:>12}  {full}")
+        if state != "create":
+            continue
+        subprocess.run(
+            ["gh", "issue", "create", "--title", full, "--body", body(n, gofile, notes.get(n)),
+             "--label", f"chapter,phase-{phase(n)}"],
+            check=True, capture_output=True, text=True,
+        )
+        created += 1
+        time.sleep(1.5)
+    print(f"{len(titles)} chapters, {len(have & {f'Chapter {i:02d}: {t}' for i, t in enumerate(titles, 1)})} existing, {created} created")
+
+
+if __name__ == "__main__":
+    main(dry_run="--dry-run" in sys.argv[1:])

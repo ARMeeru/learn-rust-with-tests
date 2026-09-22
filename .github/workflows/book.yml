@@ -63,10 +63,17 @@ jobs:
     permissions:
       contents: write
     steps:
+      - uses: actions/checkout@v4
+
       - uses: actions/download-artifact@v4
         with:
           name: gitbook
           path: dist/gitbook
+
+      # upload-artifact drops hidden files by default, so the GitBook config
+      # is taken from the checkout rather than trusted to survive the artifact.
+      - name: Add the GitBook config
+        run: cp .gitbook.yaml dist/gitbook/.gitbook.yaml
 
       # The branch is generated output. It is replaced wholesale on every
       # push to main and is never edited by hand, so force-push is intended.
