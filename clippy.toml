@@ -1,0 +1,2 @@
+# Workspace-wide clippy settings. Pedantic and nursery lints are turned on
+# per crate where a chapter teaches them, not globally.

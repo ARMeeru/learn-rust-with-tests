@@ -1,0 +1,29 @@
+[book]
+title = "Learn Rust with Tests"
+authors = ["Asifur Rahaman Meeru"]
+description = "Learn Rust by writing a test first, watching it fail, making it pass, and refactoring. A port of Learn Go with Tests."
+language = "en"
+src = "book/src"
+
+[rust]
+edition = "2024"
+
+[build]
+build-dir = "book/book"
+create-missing = false
+
+[output.html]
+site-url = "/learn-rust-with-tests/"
+git-repository-url = "https://github.com/ARMeeru/learn-rust-with-tests"
+edit-url-template = "https://github.com/ARMeeru/learn-rust-with-tests/edit/main/{path}"
+default-theme = "light"
+preferred-dark-theme = "navy"
+
+[output.html.playground]
+runnable = false
+
+[output.html.search]
+limit-results = 20
+
+# Expanded Markdown with every include resolved, for the GitBook mirror branch.
+[output.markdown]

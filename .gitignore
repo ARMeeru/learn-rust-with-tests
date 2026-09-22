@@ -1,0 +1,22 @@
+# Planning documents, kept local
+/PLAN.md
+/DEVELOPMENT_PLAN.md
+
+# Cargo
+/target/
+**/target/
+Cargo.lock.orig
+
+# mdBook output
+/book/book/
+
+# insta snapshot review files
+*.snap.new
+*.pending-snap
+
+# Editors and OS
+.idea/
+.vscode/
+*.swp
+.DS_Store
+.lycheecache

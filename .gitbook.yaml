@@ -1,0 +1,8 @@
+# GitBook reads the generated `gitbook` branch, not `main`. That branch holds
+# the Markdown that mdBook's markdown renderer writes out, with every include
+# already expanded, so the layout below matches that output.
+root: ./
+
+structure:
+  readme: index.md
+  summary: SUMMARY.md

@@ -1,0 +1,11 @@
+cache = true
+max_cache_age = "1d"
+accept = ["200..=204", "429"]
+exclude = [
+  "^https?://localhost",
+  "^https?://127\\.0\\.0\\.1",
+  "^https://armeeru\\.github\\.io/learn-rust-with-tests/",
+  "^/learn-rust-with-tests/",
+]
+# The 404 page carries a <base href> to the site root, which cannot resolve offline.
+exclude_path = ["target", "book/book/html/404.html"]

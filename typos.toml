@@ -1,0 +1,9 @@
+[files]
+extend-exclude = ["target/", "book/book/", "Cargo.lock", "*.snap"]
+
+[default]
+# Rust identifiers and crate names that trip the checker.
+extend-ignore-re = ["\\bser\\b", "\\bde\\b"]
+
+[default.extend-words]
+# Add words here as they come up, e.g. "wrapping" spellings the checker dislikes.

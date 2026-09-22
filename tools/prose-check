@@ -1,0 +1,52 @@
+#!/usr/bin/env python3
+"""Fail on em dashes, en dashes and curly quotes in book prose.
+
+Fenced code blocks and inline code are stripped before scanning, so quoted
+compiler output and code samples are never checked. Only book/src/*.md is
+scanned. Exit 1 with one line per offending location.
+"""
+
+import re
+import sys
+from pathlib import Path
+
+BANNED = {
+    "\u2014": "em dash",
+    "\u2013": "en dash",
+    "\u2018": "curly single quote",
+    "\u2019": "curly single quote",
+    "\u201c": "curly double quote",
+    "\u201d": "curly double quote",
+}
+
+FENCE = re.compile(r"^(```|~~~)")
+INLINE_CODE = re.compile(r"`[^`\n]*`")
+
+
+def prose_lines(text):
+    """Yield (line_number, line) for lines outside fenced blocks, inline code removed."""
+    in_fence = False
+    for number, line in enumerate(text.splitlines(), start=1):
+        if FENCE.match(line.strip()):
+            in_fence = not in_fence
+            continue
+        if in_fence:
+            continue
+        yield number, INLINE_CODE.sub("", line)
+
+
+def main(root):
+    failures = 0
+    for path in sorted(Path(root).rglob("*.md")):
+        for number, line in prose_lines(path.read_text(encoding="utf-8")):
+            for char, name in BANNED.items():
+                if char in line:
+                    column = line.index(char) + 1
+                    print(f"{path}:{number}:{column}: {name}")
+                    failures += 1
+    return 1 if failures else 0
+
+
+if __name__ == "__main__":
+    target = sys.argv[1] if len(sys.argv) > 1 else "book/src"
+    sys.exit(main(target))
