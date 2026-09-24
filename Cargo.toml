@@ -17,14 +17,14 @@ repository = "https://github.com/ARMeeru/learn-rust-with-tests"
 # Phase 1
 criterion = "0.8.2"
 rstest = "0.27.0"
-thiserror = "2.0.20"
+thiserror = "2.0.21"
 mockall = "0.15.0"
 trybuild = "1"
 tokio = { version = "1.53.1", features = ["full", "test-util"] }
 tokio-util = "0.7.19"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1.0.151"
-reqwest = { version = "0.12", default-features = false, features = ["rustls-tls"] }
+reqwest = { version = "0.13.5", default-features = false, features = ["rustls"] }
 wiremock = "0.6.5"
 proptest = "1.11.0"
 insta = "1.48.0"

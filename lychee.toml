@@ -6,6 +6,11 @@ exclude = [
   "^https?://127\\.0\\.0\\.1",
   "^https://armeeru\\.github\\.io/learn-rust-with-tests/",
   "^/learn-rust-with-tests/",
+  # Chapter-top links point at this repository's own chapter directories on main. While a
+  # chapter's PR is open the directory exists on the branch but not yet on main, so the
+  # check would fail on every new chapter. The includes that build the book already prove
+  # the directories exist.
+  "^https://github\\.com/ARMeeru/learn-rust-with-tests/tree/main/chapters/",
 ]
 # The 404 page carries a <base href> to the site root, which cannot resolve offline.
 exclude_path = ["target", "book/book/html/404.html"]

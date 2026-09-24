@@ -37,3 +37,27 @@ version = "0.1.0"
 [[package]]
 name = "ch02-hello-world-v9"
 version = "0.1.0"
+
+[[package]]
+name = "ch03-integers-v1"
+version = "0.1.0"
+
+[[package]]
+name = "ch03-integers-v2"
+version = "0.1.0"
+
+[[package]]
+name = "ch03-integers-v3"
+version = "0.1.0"
+
+[[package]]
+name = "ch03-integers-v4"
+version = "0.1.0"
+
+[[package]]
+name = "ch03-integers-v5"
+version = "0.1.0"
+
+[[package]]
+name = "ch03-integers-v6"
+version = "0.1.0"
