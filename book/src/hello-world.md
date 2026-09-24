@@ -185,8 +185,10 @@ assertion `left == right` failed
  right: "Hello, Chris"
 ```
 
-This is `assert_eq!` doing its job: both values, labelled, with the line number. We finally have
-a compiling program that does not meet its requirement, which is exactly the state we want to be
+This is `assert_eq!` doing its job: both values, labelled, with the line number. Your terminal
+also shows a number in brackets after the test name, a thread id that changes on every run; the
+quotes in this book leave it out. We finally have a compiling program that does not meet its
+requirement, which is exactly the state we want to be
 in before we write the real code. In the repository, this step's test is marked `should_panic`
 so that the checks stay green while the code stays honestly broken; the output above is what
 your own test prints.

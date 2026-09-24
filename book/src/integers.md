@@ -106,7 +106,7 @@ pass. A pedantic programmer might change the `0` to a `4` and stop there.
 Ah hah! Foiled again, TDD is a sham, right?
 
 We could write another test with different numbers to force that to fail, but that becomes a game
-of cat and mouse. Once we know more of the language I will introduce property-based testing,
+of cat and mouse. Once we know more of the language I will introduce property-based testing, in chapter 16,
 which stops this argument for good by letting the computer pick the numbers.
 
 For now, fix it properly:
@@ -212,7 +212,7 @@ failures:
 
 ---- tests::adding_past_the_maximum_panics stdout ----
 
-thread 'tests::adding_past_the_maximum_panics' panicked at src/lib.rs:2:5:
+thread 'tests::adding_past_the_maximum_panics' panicked at src/lib.rs:10:5:
 attempt to add with overflow
 ```
 
@@ -242,14 +242,15 @@ a method for exactly that, and we can wrap it in a function of our own. Test fir
 
 ```text
 error[E0425]: cannot find function `try_add` in this scope
-  --> src/lib.rs:11:20
+  --> src/lib.rs:32:20
    |
-11 |         assert_eq!(try_add(i32::MAX, 1), None);
+32 |         assert_eq!(try_add(2, 2), Some(4));
    |                    ^^^^^^^ not found in this scope
 ```
 
-Same error as the start of the chapter, same fix: write the function. Here are the tests I wrote
-and the function that makes them pass:
+The second test fails the same way, one error per call. Same error as the start of the chapter,
+same fix: write the function. Here are the two tests I wrote and the function that makes them
+pass:
 
 ```rust
 {{#include ../../chapters/03-integers/v6/src/lib.rs:try_add_tests}}
@@ -265,7 +266,7 @@ integer type returns exactly that: `Some` of the sum when it fits, `None` when i
 `try_add` is a thin wrapper, which is fine; the point is the signature. A caller can see from the
 type alone that this addition might not produce a number, and the compiler will make them deal
 with the `None` case before they can use the value. We will use `Option` a great deal from here
-on, and the chapter on maps looks at it properly.
+on, and chapter 8, on maps, looks at it properly.
 
 The doc comment carries two examples this time, one for each outcome. Both run under
 `cargo test`.
