@@ -2,8 +2,8 @@
 
 [You can find all the code for this chapter here](https://github.com/ARMeeru/learn-rust-with-tests/tree/main/chapters/04-iteration).
 
-Go does repetition with one keyword, `for`; there is no `while` and no `do`, and the Go chapter
-of this book calls that a good thing. Rust has all three: `loop`, `while` and `for`. We will
+Go does repetition with one keyword, `for`; there is no `while` and no `do`, and Learn Go with
+Tests calls that a good thing. Rust has three loop keywords: `loop`, `while` and `for`. We will
 only need `for` in this chapter, because the test we write asks for a fixed number of
 repetitions, and we will say a word about the other two once the test is green.
 
@@ -147,20 +147,21 @@ Here is `benches/repeat.rs`:
 
 The shape is close to a test: a function that receives a handle, criterion's `Criterion`, and
 calls `bench_function` with a name and a closure. The closure is what gets timed, over and over.
-`black_box` hides its argument from the optimiser; without it, the compiler can see that the
-input is always `'a'`, that the result is never used, and delete the entire calculation before
-the timer starts. In your project the first line says `use iteration::repeat;`; the repository
-names its crates after the chapter and step, so the include above says `ch04_iteration_v4`.
-That is the only difference, and it applies to every code block in this chapter.
+Criterion already passes the closure's return value through `black_box` itself, so the work
+cannot be thrown away as unused; the `black_box` around `'a'` stops the compiler from treating
+the input as a known constant and computing with that constant instead of measuring. In your
+project the first line says `use iteration::repeat;`; the repository names its crates after the
+chapter and step, so the include above says `ch04_iteration_v4`. That is the only difference,
+and it applies to every code block in this chapter.
 
 Run `cargo bench`:
 
 ```text
 Benchmarking repeat
 Benchmarking repeat: Warming up for 3.0000 s
-Benchmarking repeat: Collecting 100 samples in estimated 5.0000 s (500M iterations)
+Benchmarking repeat: Collecting 100 samples in estimated 5.0000 s (493M iterations)
 Benchmarking repeat: Analyzing
-repeat                  time:   [9.9564 ns 9.9881 ns 10.028 ns]
+repeat                  time:   [9.9958 ns 10.079 ns 10.178 ns]
 ```
 
 Criterion warms the code up, then collects one hundred samples and reports the time as a range:
@@ -168,9 +169,15 @@ a lower bound, a best estimate, and an upper bound for how long one call takes. 
 here is about ten nanoseconds. Yours will be different; timings depend on the machine and on
 whatever else it is doing. The `go test -bench` output in the Go chapter reports a single
 nanoseconds-per-operation number where criterion reports a range, and decides for itself how
-many iterations to run, which is what those `500M iterations` are. You will also notice that
+many iterations to run, which is what those `493M iterations` are. You will also notice that
 `cargo bench` compiles your unit tests and lists them as `ignored`, because benchmarks are the
 only thing it runs.
+
+Two kinds of line the quotes in this chapter leave out, because they vary from machine to
+machine and from run to run: a note about which plotting backend criterion falls back to, and a
+report of outlying measurements. Criterion also saves every run as a baseline. The next run in
+the same project gets a `change` line comparing against it, and every benchmark output after
+this one has one.
 
 ## Making room up front
 
@@ -191,30 +198,32 @@ buffer how much room it will need before we start pushing:
 long, and `len_utf8` is the method that says how many this particular one needs; for `'a'` that
 is one.
 
-Benchmark both versions and compare. The loop version measured `10.0` nanoseconds in the last
-section; here is the capacity version, run the same way:
+Run `cargo bench` again, in the same project:
 
 ```text
 Benchmarking repeat
 Benchmarking repeat: Warming up for 3.0000 s
-Benchmarking repeat: Collecting 100 samples in estimated 5.0000 s (698M iterations)
+Benchmarking repeat: Collecting 100 samples in estimated 5.0000 s (690M iterations)
 Benchmarking repeat: Analyzing
-repeat                  time:   [7.2762 ns 7.3467 ns 7.4237 ns]
+repeat                  time:   [7.1859 ns 7.2172 ns 7.2500 ns]
+                        change: [−28.249% −27.575% −26.932%] (p = 0.00 < 0.05)
+                        Performance has improved.
 ```
 
-On my machine that is about a quarter less time, and repeated runs agreed. I did not expect a
-gap that size, and I would not generalise the exact ratio from a microbenchmark this small. One
-thing I checked before believing it: both versions make exactly one memory allocation for five
-one-byte characters. `String::new()` starts with no room at all, so the first `push` has to stop
-and grow the buffer mid-loop; `with_capacity` gets the growing over with before the loop begins.
-The Go chapter's benchmark improved five-fold, because every concatenation there really did copy
-the string so far. Rust starts from a better place, and the same idea buys less. Your own
-numbers will differ, and on a quiet machine the two versions may land closer together than mine
-did.
+The `change` line is criterion comparing this run against the baseline it saved from the last
+one, and its verdict is its own: just over a quarter less time, and repeated runs agreed. I did
+not expect a gap that size, and I would not generalise the exact ratio from a microbenchmark
+this small. One thing I checked before believing it: both versions make exactly one memory
+allocation for five one-byte characters. `String::new()` starts with no room at all, so the
+first `push` has to stop and grow the buffer mid-loop; `with_capacity` gets the growing over
+with before the loop begins. The Go chapter's benchmark improved five-fold, because every
+concatenation there really did copy the string so far. Rust starts from a better place, and the
+same idea buys less. Your own numbers will differ, and on a quiet machine the two versions may
+land closer together than mine did.
 
 ## Practice exercises
 
-The Go chapter ends by leaving you three exercises. We do the first two here, as the last step
+The Go chapter ends by leaving you three exercises. We do the first two here, as the last steps
 of the chapter, and the third one is yours.
 
 ### Repeat a given number of times
@@ -248,25 +257,54 @@ help: remove the extra argument
 
 The compiler takes the test's side in an odd way: it offers to remove the extra argument and
 leave the hard-coded five in place. The test is the requirement, so the function is what
-changes. The smallest fix passes the count through: the capacity and the range both come from
-`count` now. Do that, and the test passes.
+changes. The constant goes too; the count belongs to the caller now, and the capacity and the
+range both come from it:
+
+```rust
+{{#include ../../chapters/04-iteration/v6/src/lib.rs:fix}}
+```
+
+Run the test and it passes. The benchmark needs the same update:
+
+```rust
+{{#include ../../chapters/04-iteration/v6/benches/repeat.rs:all}}
+```
+
+The character is hidden for the reason from the last section. The count gets the same treatment
+because the benchmark should measure the function as it is, a general function over a count
+that arrives at run time, rather than whatever the optimiser makes of one particular call site.
+
+Run it:
+
+```text
+Benchmarking repeat
+Benchmarking repeat: Warming up for 3.0000 s
+Benchmarking repeat: Collecting 100 samples in estimated 5.0000 s (530M iterations)
+Benchmarking repeat: Analyzing
+repeat                  time:   [9.3859 ns 9.4746 ns 9.5752 ns]
+                        change: [+29.524% +31.096% +32.390%] (p = 0.00 < 0.05)
+                        Performance has regressed.
+```
+
+Criterion is comparing against the last section's baseline, and it flags a regression of a
+little over two nanoseconds. The cost is the count itself. It used to be a constant inside the
+function, and the loop over it could be tied to that constant; now it arrives as a parameter
+and stays a runtime value inside the body. I checked that the `black_box` at the call site is
+not what costs it: passing a plain `5` instead measures the same. That is the price of letting
+the caller choose, and for a function this small it is a small one.
 
 ### An example in the documentation
 
 The Go book's second exercise is `ExampleRepeat`, a testable example in the documentation. The
-Rust counterpart is the doc test from the last chapter, and it lands in the same listing as a
-further refactor of the body:
+Rust counterpart is the doc test from the last chapter, and it sits in the doc comment on the
+function we just fixed:
 
 ```rust
 {{#include ../../chapters/04-iteration/v6/src/lib.rs:code}}
 ```
 
-The example documents the new signature, and it imports the crate the same way the benchmark
-did: the repository copy says `use ch04_iteration_v6::repeat;` where your file says
-`use iteration::repeat;`. The body is the refactor: `std::iter::repeat_n` is the standard
-library function whose job is to produce a value exactly `count` times, a close cousin of the
-`std::iter::repeat` the compiler offered to import at the start of the chapter, and `collect()`
-gathers whatever an iterator produces into a collection, a `String` here.
+The example imports the crate the same way the benchmark does: the repository copy says
+`use ch04_iteration_v6::repeat;` where your file says `use iteration::repeat;`.
 
 Run `cargo test` and the doc tests get their own section at the bottom, as in the last chapter:
 
@@ -284,34 +322,38 @@ test src/lib.rs - repeat (line 3) ... ok
 test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 ```
 
-### What the benchmark says now
+### The standard library's version
 
-The benchmark still calls `repeat` with one argument, so it needs the same update:
+One more refactor, and it is the one the compiler was nudging us towards at the start of the
+chapter. `std::iter::repeat_n` produces a value exactly `count` times; it is a close cousin of
+the `std::iter::repeat` the compiler offered to import back then, and `collect()` gathers
+whatever an iterator produces into a collection, a `String` here:
 
 ```rust
-{{#include ../../chapters/04-iteration/v6/benches/repeat.rs:all}}
+{{#include ../../chapters/04-iteration/v7/src/lib.rs:code}}
 ```
 
-Both arguments go through `black_box`, or the optimiser could work out that the count is a
-constant five and precompute the answer.
+The doc comment comes along unchanged.
 
-Run it:
+The benchmark does not change. Run it again:
 
 ```text
 Benchmarking repeat
 Benchmarking repeat: Warming up for 3.0000 s
-Benchmarking repeat: Collecting 100 samples in estimated 5.0000 s (509M iterations)
+Benchmarking repeat: Collecting 100 samples in estimated 5.0000 s (385M iterations)
 Benchmarking repeat: Analyzing
-repeat                  time:   [12.717 ns 12.809 ns 12.910 ns]
+repeat                  time:   [12.714 ns 12.828 ns 12.959 ns]
+                        change: [+32.406% +33.801% +35.156%] (p = 0.00 < 0.05)
+                        Performance has regressed.
 ```
 
-The one-line body is slower than the loop it replaced: about `12.8` nanoseconds against `7.3`
-on my machine. I checked the result twice before believing it, and the runs agreed. The Go
-chapter's refactor was justified by its benchmark; this one is priced by ours, and the price is
-a few nanoseconds on a function that was already tiny. I would still keep `repeat_n`: it says
-what it does in one line, it is the form an experienced Rust programmer expects to read, and
-nothing in this book has a hot path through `repeat`. If yours does, the benchmark is sitting
-right there in `benches/` to tell you what the one-liner costs.
+This time the comparison is fair in a way the last one was not: both versions take the count as
+a runtime value, and `repeat_n` is still about a third slower than the loop. The Go chapter's
+refactor made its benchmark five times faster; this one makes ours slower, by a few nanoseconds
+on a function that was already tiny. I would still keep `repeat_n`: it says what it does in one
+line, it is the form an experienced Rust programmer expects to read, and nothing in this book
+has a hot path through `repeat`. If yours does, the benchmark is sitting right there in
+`benches/` to tell you what the one-liner costs.
 
 ### Explore the standard library
 
@@ -330,11 +372,12 @@ What we have covered:
 - More practice of the TDD workflow, under the fixed headings.
 - `for` and ranges, `let mut`, `String::push`, and a first look at `loop` and `while`.
 - `char`, and the difference between a character and a string.
-- Benchmarks with criterion: `benches/`, `harness = false`, `black_box`, and how to read the
-  output. Rust's counterpart of `go test -bench`.
-- `String::with_capacity`, and the honest finding that a Rust `String` already grows the way
+- Benchmarks with criterion: `benches/`, `harness = false`, `black_box`, how to read the output,
+  and what the `change` line compares. Rust's counterpart of `go test -bench`.
+- `String::with_capacity`, and the finding that a Rust `String` already grows the way
   `strings.Builder` makes Go strings grow, so the win is smaller than the Go chapter's.
-- `std::iter::repeat_n`, and a benchmark that priced a prettier refactor honestly.
+- `std::iter::repeat_n`, and a benchmark that shows the one-line form is slower than the loop
+  for this input.
 - A doc test as the counterpart of Go's `ExampleRepeat`.
 
-The code for the final step is in `chapters/04-iteration/v6`.
+The code for the final step is in `chapters/04-iteration/v7`.
