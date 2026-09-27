@@ -347,10 +347,10 @@ repeat                  time:   [12.714 ns 12.828 ns 12.959 ns]
                         Performance has regressed.
 ```
 
-This time the comparison is fair in a way the last one was not: both versions take the count as
-a runtime value, and `repeat_n` is still about a third slower than the loop. The Go chapter's
-refactor made its benchmark five times faster; this one makes ours slower, by a few nanoseconds
-on a function that was already tiny. I would still keep `repeat_n`: it says what it does in one
+Both versions now take the count at run time, so this `change` line measures `repeat_n` alone,
+and it is about a third slower than the loop. The Go chapter's refactor made its benchmark five
+times faster; this one makes ours slower, by a few nanoseconds on a function that was already
+tiny. I would still keep `repeat_n`: it says what it does in one
 line, it is the form an experienced Rust programmer expects to read, and nothing in this book
 has a hot path through `repeat`. If yours does, the benchmark is sitting right there in
 `benches/` to tell you what the one-liner costs.
