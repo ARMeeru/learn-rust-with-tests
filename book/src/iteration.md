@@ -51,9 +51,9 @@ help: consider importing one of these functions
 
 Same story as the start of the last chapter: there is no function called `repeat`. The help text
 is new, though: the compiler knows several standard library functions with that name and offers
-to import each of them. One of them, `std::iter::repeat`, repeats a value any number of times,
-which sounds exactly like what we are writing; we meet the iterator machinery behind it in
-chapter 21. For now we write our own.
+to import each of them. One of them, `std::iter::repeat`, sounds close to what we are writing,
+but it takes no count: it produces the same value endlessly, and stopping after five is a job for
+`.take(5)`, part of the iterator machinery we meet in chapter 21. For now we write our own.
 
 ## Write the minimal amount of code for the test to run and check the failing test output
 
@@ -324,16 +324,22 @@ test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; fini
 
 ### The standard library's version
 
-One more refactor, and it is the one the compiler was nudging us towards at the start of the
-chapter. `std::iter::repeat_n` produces a value exactly `count` times; it is a close cousin of
-the `std::iter::repeat` the compiler offered to import back then, and `collect()` gathers
-whatever an iterator produces into a collection, a `String` here:
+One more refactor. `std::iter::repeat_n` produces a value exactly `count` times; it is a close
+cousin of the endless `std::iter::repeat` the compiler offered to import at the start of the
+chapter, and `collect()` gathers whatever an iterator produces into a collection, a `String`
+here:
 
 ```rust
 {{#include ../../chapters/04-iteration/v7/src/lib.rs:code}}
 ```
 
 The doc comment comes along unchanged.
+
+One thing the one-liner gives up. `collect()` reserves room from the number of characters the
+iterator promises, not the number of bytes, so it no longer does the `len_utf8` sum from the
+capacity section. For `'a'` that makes no difference. For a three-byte character such as `'你'`,
+five repeats need fifteen bytes, the reservation covers five, and the string grows a second time
+partway through.
 
 The benchmark does not change. Run it again:
 
@@ -358,8 +364,9 @@ has a hot path through `repeat`. If yours does, the benchmark is sitting right t
 ### Explore the standard library
 
 The third exercise is yours, and it is the same one the Go chapter sets: spend some time
-browsing the standard library. Open the documentation for `str` and `String`, with
-`cargo doc --open` or on docs.rs, and look for the methods you would have reached for in other
+browsing the standard library. Open the documentation for `str` and `String` with
+`rustup doc std::str` and `rustup doc std::string`, the offline docs from the second chapter, or
+online at doc.rust-lang.org, and look for the methods you would have reached for in other
 languages: there are hundreds, from `repeat`, which answers this chapter's whole exercise in one
 call, to `trim`, `split` and `replace`. Pick a few, guess what they do, and write a test each,
 the way we have all chapter. Time spent in the standard library pays off for as long as you
