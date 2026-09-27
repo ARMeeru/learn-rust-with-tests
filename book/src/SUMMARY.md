@@ -7,7 +7,7 @@
 - [Install Rust](install-rust.md)
 - [Hello, World](hello-world.md)
 - [Integers](integers.md)
-- [Iteration]()
+- [Iteration](iteration.md)
 - [Arrays, Vec and slices]()
 - [Structs, impl blocks and traits]()
 - [Ownership, borrowing and errors]()
