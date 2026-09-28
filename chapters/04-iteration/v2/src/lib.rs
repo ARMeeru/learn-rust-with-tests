@@ -1,0 +1,21 @@
+// ANCHOR: code
+pub fn repeat(character: char) -> String {
+    let mut repeated = String::new();
+    for _ in 0..5 {
+        repeated.push(character);
+    }
+    repeated
+}
+// ANCHOR_END: code
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn repeats_a_character_five_times() {
+        let repeated = repeat('a');
+        let expected = "aaaaa";
+        assert_eq!(repeated, expected);
+    }
+}
